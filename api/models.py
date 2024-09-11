@@ -18,8 +18,10 @@ class Address(models.Model):
     city = models.CharField(max_length=100)
     zipcode = models.CharField(
         max_length=10,
-        validators=[RegexValidator(regex=r'^\d{5}(-\d{4})?$', message='Invalid zipcode format')]
-    )
+        validators=[
+            RegexValidator(
+                regex=r'^\d{5}(-\d{4})?$',
+                message='Invalid zipcode format')])
     geo = models.ForeignKey(
         Geo,
         on_delete=models.CASCADE,
@@ -32,12 +34,12 @@ class Address(models.Model):
 
 
 class User(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100, blank=True, null=True)
+    last_name = models.CharField(max_length=100, blank=True, null=True)
     username = models.CharField(max_length=100, unique=True)
     email = models.EmailField(max_length=100, unique=True)
-    phone = models.CharField(max_length=15, unique=True)
-    date_of_birth = models.DateField()
+    phone = models.CharField(max_length=15, unique=True, blank=True, null=True)
+    date_of_birth = models.DateField(null=True, blank=True)
     bio = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(
         upload_to="profile_pictures", blank=True, null=True)
@@ -47,7 +49,7 @@ class User(models.Model):
         null=True,
         blank=True,
         related_name='residents')
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, )
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True, editable=False)
 
@@ -70,9 +72,6 @@ class Post(models.Model):
     def __str__(self) -> str:
         return self.title
 
-    class Meta:
-        ordering = ['-created_at']
-
 
 class Comment(models.Model):
     user = models.ForeignKey(
@@ -84,13 +83,13 @@ class Comment(models.Model):
         Post,
         on_delete=models.CASCADE,
         related_name='comments')
-    image = models.ImageField(upload_to="comment_images", blank=True, null=True)
+    image = models.ImageField(
+        upload_to="comment_images",
+        blank=True,
+        null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True, editable=False)
-
-    class Meta:
-        ordering = ['-created_at']
 
 
 class Reaction(models.Model):
@@ -108,9 +107,6 @@ class Reaction(models.Model):
     def __str__(self) -> str:
         return f"{self.user} reacted to {self.post}"
 
-    class Meta:
-        ordering = ['-created_at']
-
 
 class Follow(models.Model):
     follower = models.ForeignKey(
@@ -126,6 +122,3 @@ class Follow(models.Model):
 
     def __str__(self) -> str:
         return f"{self.follower} follows {self.following}"
-
-    class Meta:
-        ordering = ['-created_at']
